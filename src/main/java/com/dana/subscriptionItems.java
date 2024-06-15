@@ -1,12 +1,4 @@
 package com.dana;
-CREATE TABLE `subscription_items` (
-        `subscription` INTEGER,
-        `item` INTEGER,
-        `quantity` INTEGER NOT NULL,
-        `price` INTEGER NOT NULL,
-        `amount` INTEGER NOT NULL,
-PRIMARY KEY (`subscription`, `item`)
-);
 public class subscriptionItems {
 
     private int subscription;
