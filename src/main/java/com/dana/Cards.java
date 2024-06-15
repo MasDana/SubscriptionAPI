@@ -8,7 +8,6 @@ public class Cards {
     private int expiryMonth;
     private int expiryYear;
     private String status;
-
     private int isPrimary;
 
 
@@ -20,38 +19,30 @@ public class Cards {
         this.id = id;
     }
 
-    
+    public int getCustomer(){ return customer; }
 
+    public void setCustomer(){ this.customer = customer; }
 
-    public String getFirstName() {
-        return firstName;
-    }
+   public String getCardType(){ return cardType;}
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+    public void setCardType (){this.cardType = cardType;}
 
-    public String getLastName() {
-        return lastName;
-    }
+    public String getMaskedNumber(){return maskedNumber;}
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
+    public void setMaskedNumber(){this.maskedNumber = maskedNumber;}
 
-    public String getEmail() {
-        return email;
-    }
+    public int getExpiryMonth(){return  expiryMonth;}
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public void setExpiryMonth(){this.expiryMonth = expiryMonth;}
 
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
+    public int getExpiryYear(){return  expiryYear;}
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-}
+    public void setExpiryYear(){this.expiryYear = expiryYear;}
+
+    public String getStatus(){return status;}
+
+    public void setStatus(){this.status = status;}
+
+    public int getIsPrimary(){return  isPrimary;}
+
+    public  void setIsPrimary(){this.isPrimary = isPrimary;}
