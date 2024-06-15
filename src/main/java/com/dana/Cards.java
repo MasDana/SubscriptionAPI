@@ -19,30 +19,60 @@ public class Cards {
         this.id = id;
     }
 
-    public int getCustomer(){ return customer; }
+    public int getCustomer() {
+        return customer;
+    }
 
-    public void setCustomer(){ this.customer = customer; }
+    public void setCustomer() {
+        this.customer = customer;
+    }
 
-   public String getCardType(){ return cardType;}
+    public String getCardType() {
+        return cardType;
+    }
 
-    public void setCardType (){this.cardType = cardType;}
+    public void setCardType() {
+        this.cardType = cardType;
+    }
 
-    public String getMaskedNumber(){return maskedNumber;}
+    public String getMaskedNumber() {
+        return maskedNumber;
+    }
 
-    public void setMaskedNumber(){this.maskedNumber = maskedNumber;}
+    public void setMaskedNumber() {
+        this.maskedNumber = maskedNumber;
+    }
 
-    public int getExpiryMonth(){return  expiryMonth;}
+    public int getExpiryMonth() {
+        return expiryMonth;
+    }
 
-    public void setExpiryMonth(){this.expiryMonth = expiryMonth;}
+    public void setExpiryMonth() {
+        this.expiryMonth = expiryMonth;
+    }
 
-    public int getExpiryYear(){return  expiryYear;}
+    public int getExpiryYear() {
+        return expiryYear;
+    }
 
-    public void setExpiryYear(){this.expiryYear = expiryYear;}
+    public void setExpiryYear() {
+        this.expiryYear = expiryYear;
+    }
 
-    public String getStatus(){return status;}
+    public String getStatus() {
+        return status;
+    }
 
-    public void setStatus(){this.status = status;}
+    public void setStatus() {
+        this.status = status;
+    }
 
-    public int getIsPrimary(){return  isPrimary;}
+    public int getIsPrimary() {
+        return isPrimary;
+    }
 
-    public  void setIsPrimary(){this.isPrimary = isPrimary;}
+    public void setIsPrimary() {
+        this.isPrimary = isPrimary;
+    }
+
+}
