@@ -1,5 +1,8 @@
 package com.dana;
-
+import org.json.JSONObject;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 public class Cards {
     private int id;
     private int customer;
@@ -73,6 +76,35 @@ public class Cards {
 
     public void setIsPrimary() {
         this.isPrimary = isPrimary;
+    }
+
+    public JSONObject objectJSON() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id", id);
+        jsonObject.put("customer", customer);
+        jsonObject.put("card_type", cardType);
+        jsonObject.put("masked_number", maskedNumber);
+        jsonObject.put("expiry_month", expiryMonth);
+        jsonObject.put("expiry_year", expiryYear);
+        jsonObject.put("status", status);
+        jsonObject.put("is_primary", isPrimary);
+        return jsonObject;
+    }
+
+    public int cardsParse(String json) {
+        try {
+            JSONObject obj = new JSONObject(json);
+            customer = obj.getInt("customer");
+            cardType = obj.getString("card_type");
+            maskedNumber = obj.getString("masked_number");
+            expiryMonth = obj.getInt("expiry_month");
+            expiryYear = obj.getInt("expiry_year");
+            status = obj.getString("status");
+            isPrimary = obj.getInt("is_primary");
+        } catch (Exception e) {
+            return 1;
+        }
+        return 0;
     }
 
 }
