@@ -54,4 +54,34 @@ public class Items {
         return 0;
     }
 
+    public void insertItem() {
+        try {
+            Connection conn = connectionDatabase.getConnection();
+            String sql = "INSERT INTO item (name, price, type, is_active) VALUES (?,?,?,?)";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, name);
+            pstmt.setInt(2, price);
+            pstmt.setString(3, type);
+            pstmt.setInt(4, isActive);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void updateItem(String idItem) {
+        try {
+            Connection conn = connectionDatabase.getConnection();
+            String sql = "UPDATE item SET name = \"" + name +
+                    "\" , price = \"" + price +
+                    "\" , type = \"" + type +
+                    "\" , is_active = \"" + isActive +
+                    "\" WHERE id = " + idItem;
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
 }
