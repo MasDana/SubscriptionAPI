@@ -76,7 +76,7 @@ public class Customer {
     public void insertUser() {
         try {
             Connection conn = connectionDatabase.getConnection();
-            String sql = "INSERT INTO customer (first_name, last_name, email, phone_number) VALUES (?,?,?,?,?)";
+            String sql = "INSERT INTO customer (first_name, last_name, email, phone_number) VALUES (?,?,?,?)";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, firstName);
             pstmt.setString(2, lastName);
