@@ -107,4 +107,40 @@ public class Cards {
         return 0;
     }
 
+    public void insertCards() {
+        try {
+            Connection conn = connectionDatabase.getConnection();
+            String sql = "INSERT INTO cards (customer, card_type, masked_number, expiry_month, expiry_year, status, is_primary) VALUES (?,?,?,?,?,?,?)";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, customer);
+            pstmt.setString(2, cardType);
+            pstmt.setString(3, maskedNumber);
+            pstmt.setInt(4, expiryMonth);
+            pstmt.setInt(5, expiryYear);
+            pstmt.setString(6, status);
+            pstmt.setInt(7, isPrimary);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void updateCards(String id) {
+        try {
+            Connection conn = connectionDatabase.getConnection();
+            String sql = "UPDATE cards SET customer = \"" + customer +
+                    "\" , card_type = \"" + cardType +
+                    "\" , masked_number = \"" + maskedNumber +
+                    "\" , expiry_month = \"" + expiryMonth +
+                    "\" , expiry_year = \"" + expiryYear +
+                    "\" , status = \"" + status +
+                    "\" , is_primary = \"" + isPrimary +
+                    "\" WHERE users = " + id;
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
 }
