@@ -53,7 +53,7 @@ public class Customer {
 
     public JSONObject objectJSON() {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("users", id);
+        jsonObject.put("user", id);
         jsonObject.put("first_name", firstName);
         jsonObject.put("last_name", lastName);
         jsonObject.put("email", email);
@@ -73,7 +73,34 @@ public class Customer {
         }
         return 0;
     }
+    public void insertUser() {
+        try {
+            Connection conn = connectionDatabase.getConnection();
+            String sql = "INSERT INTO customer (first_name, last_name, email, phone_number) VALUES (?,?,?,?,?)";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, firstName);
+            pstmt.setString(2, lastName);
+            pstmt.setString(3, email);
+            pstmt.setString(4, phoneNumber);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 
-
+    public void updateUser(String idUser) {
+        try {
+            Connection conn = connectionDatabase.getConnection();
+            String sql = "UPDATE customer SET first_name = \"" + firstName +
+                    "\" , last_name = \"" + lastName +
+                    "\" , email = \"" + email +
+                    "\" , phone_number = \"" + phoneNumber +
+                    "\" WHERE users = " + idUser;
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 }
 
