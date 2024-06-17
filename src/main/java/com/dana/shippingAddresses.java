@@ -2,6 +2,10 @@ package com.dana;
 
 import org.json.JSONObject;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 public class shippingAddresses {
     private int id;
     private int customer;
@@ -85,7 +89,7 @@ public class shippingAddresses {
         jsonObject.put("line2", line2);
         jsonObject.put("city", city);
         jsonObject.put("province", province);
-        jsonObject.put("postcode", postcode)
+        jsonObject.put("postcode", postcode);
         return jsonObject;
     }
 
@@ -103,6 +107,42 @@ public class shippingAddresses {
             return 1;
         }
         return 0;
+    }
+
+    public void insertShippingAddress() {
+        try {
+            Connection conn = connectionDatabase.getConnection();
+            String sql = "INSERT INTO shipping_addresses (customer, title, line1, line2, city, province, postcode) VALUES (?,?,?,?,?,?,?)";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, customer);
+            pstmt.setString(2, title);
+            pstmt.setString(3, line1);
+            pstmt.setString(4, line2);
+            pstmt.setString(5, city);
+            pstmt.setString(6, province);
+            pstmt.setString(7, postcode);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void updateShippingAddress(String idShippingAddress) {
+        try {
+            Connection conn = connectionDatabase.getConnection();
+            String sql = "UPDATE shipping_addresses SET customer = \"" + customer +
+                    "\" , title = \"" + title +
+                    "\" , line1 = \"" + line1 +
+                    "\" , line2 = \"" + line2 +
+                    "\" , city = \"" + city +
+                    "\" , province = \"" + province +
+                    "\" , postcode = \"" + postcode +
+                    "\" WHERE users = " + idShippingAddress;
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }
 
