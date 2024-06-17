@@ -2,6 +2,10 @@ package com.dana;
 
 import org.json.JSONObject;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 public class subscriptionItems {
 
     private int subscription;
@@ -74,4 +78,34 @@ public class subscriptionItems {
         return 0;
     }
 
+    public void insertUser() {
+        try {
+            Connection conn = connectionDatabase.getConnection();
+            String sql = "INSERT INTO subscription_items (subscription, item, quantity, price, amount) VALUES (?,?,?,?,?)";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, subscription);
+            pstmt.setInt(2, item);
+            pstmt.setInt(3, quantity);
+            pstmt.setInt(4, price);
+            pstmt.setInt(5, amount);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void updateUser(String idSubscriptionItem) {
+        try {
+            Connection conn = connectionDatabase.getConnection();
+            String sql = "UPDATE subscription_items SET subscription = \"" + subscription +
+                    "\" , last_name = \"" + item +
+                    "\" , email = \"" + quantity +
+                    "\" , phone_number = \"" + price +
+                    "\" WHERE subscriptionItem = " + idSubscriptionItem;
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 }
