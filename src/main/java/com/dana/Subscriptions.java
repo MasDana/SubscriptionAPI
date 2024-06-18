@@ -2,6 +2,10 @@ package com.dana;
 
 import org.json.JSONObject;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 public class Subscriptions {
     private int id;
     private int customer;
@@ -116,5 +120,41 @@ public class Subscriptions {
         }
         return 0;
     }
+    public void insertSubscriptions() {
+        try {
+            Connection conn = connectionDatabase.getConnection();
+            String sql = "INSERT INTO subscriptions (customer, billing_period, billing_period_unit, total_due, activated_at, current_term_start, current_term_end, status) VALUES (?,?,?,?,?,?,?,?)";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, customer);
+            pstmt.setInt(2, billingPeriod);
+            pstmt.setString(3, billingPeriodUnit);
+            pstmt.setInt(4, totalDue);
+            pstmt.setString(5, activatedAt);
+            pstmt.setString(6, currentTermStart);
+            pstmt.setString(7, currentTermEnd);
+            pstmt.setString(8, status);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 
+    public void updateSubscriptions(String idSubscriptions) {
+        try {
+            Connection conn = connectionDatabase.getConnection();
+            String sql = "UPDATE subscription SET customer = \"" + customer +
+                    "\" , last_name = \"" + billingPeriod +
+                    "\" , email = \"" + billingPeriodUnit +
+                    "\" , phone_number = \"" + totalDue +
+                    "\" , last_name = \"" +activatedAt +
+                    "\" , email = \"" + currentTermStart +
+                    "\" , phone_number = \"" + currentTermEnd +
+                    "\" , phone_number = \"" + status +
+                    "\" WHERE users = " + idSubscriptions;
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 }
