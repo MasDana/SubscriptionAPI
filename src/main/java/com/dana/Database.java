@@ -8,15 +8,15 @@ import java.sql.*;
 import java.util.*;
 
 public class Database {
-    private final String[] tables = {
-            "addresses",
-            "orderDetails",
-            "orders",
-            "products",
-            "reviews",
-            "users"
+    private final String[] tabel = {
+            "cards",
+            "customer",
+            "item",
+            "shipping_addresses",
+            "subscription_item",
+            "subscriptions"
     };
-    public Result select(String tableName, String condition) {
+    public Result selectFromTable(String tableName, String condition) {
         List<String> rows = new ArrayList<>();
         try {
             String query = "SELECT * FROM " + tableName +
@@ -29,7 +29,6 @@ public class Database {
             int columnCount = resultSetMetaData.getColumnCount();
 
             while (resultSet.next()) {
-                // Format to json
                 StringBuilder row = new StringBuilder();
                 row.append("{");
                 for (int i = 1; i <= columnCount; i++) {
@@ -42,20 +41,20 @@ public class Database {
                 // End of formatting
 
                 ObjectMapper objectMapper = new ObjectMapper();
-                Object object = objectMapper.readValue(row.toString(), Class.forName("com.bay.data." + getClassName(tableName)));
-                rows.add(toJson(object));
+                Object object = objectMapper.readValue(row.toString(), Class.forName("com.dana." + classGetter(tableName)));
+                rows.add(convertJSON(object));
             }
 
-            if (rows.size() == 0) return new Result(null, "No matching data found, please check your request", 404, false);
-            else if (rows.size() == 1) return new Result(rows.get(0), "Select success", 200, true);
-            return new Result(rows, "Select success", 200, true);
+            if (rows.size() == 0) return new Result(null, "Data tidak ditemukan", 404, false);
+            else if (rows.size() == 1) return new Result(rows.get(0), "Select sukses", 200, true);
+            return new Result(rows, "Select sukses", 200, true);
         } catch (Exception e) {
             e.printStackTrace();
             return new Result(null, e.getMessage(), 400, false);
         }
     }
 
-    public Result customSelect(String customQuery) {
+    public Result selectWithQuery(String customQuery) {
         List<String> rows = new ArrayList<>();
         try {
             Connection connection = connectionDatabase.getConnection();
@@ -82,22 +81,22 @@ public class Database {
                 rows.add(row.toString());
             }
 
-            if (rows.size() == 0) return new Result(null, "No matching data found, please check your request", 404, false);
-            else if (rows.size() == 1) return new Result(rows.get(0), "Select success", 200, true);
-            return new Result(rows, "Select success", 200, true);
+            if (rows.size() == 0) return new Result(null, "Data tidak ditemukan", 404, false);
+            else if (rows.size() == 1) return new Result(rows.get(0), "Select sukses", 200, true);
+            return new Result(rows, "Select sukses", 200, true);
         } catch (Exception e) {
             e.printStackTrace();
             return new Result(null, e.getMessage(), 400, false);
         }
     }
 
-    public Result insert(String tableName, String fieldKeys, String fieldValues) {
+    public Result insertToTable(String tableName, String fieldKeys, String fieldValues) {
         Result result;
         try {
             String query = "INSERT INTO " + tableName + " (" + fieldKeys + ") " + "VALUES (" + fieldValues + ") ";
             Connection connection = connectionDatabase.getConnection();
             Statement statement = connection.createStatement();
-            result = new Result(statement.executeUpdate(query), "Insert success", 200,true);
+            result = new Result(statement.executeUpdate(query), "Insert sukses", 200,true);
         } catch (Exception e) {
             e.printStackTrace();
             result = new Result(null, e.getMessage(), 404,false);
@@ -106,9 +105,9 @@ public class Database {
         return result;
     }
 
-    public Result update(String tableName, int id, String fieldKeys, String fieldValues) {
-        if (!this.select(tableName, "id=" + id).isSuccess()) {
-            return new Result(null, "No matching data found, please check your request", 404, false);
+    public Result updateTable(String tableName, int id, String fieldKeys, String fieldValues) {
+        if (!this.selectFromTable(tableName, "id=" + id).isSukses()) {
+            return new Result(null, "Data tidak ditemukan", 404, false);
         }
 
         Result result;
@@ -130,7 +129,7 @@ public class Database {
 
             Connection connection = connectionDatabase.getConnection();
             Statement statement = connection.createStatement();
-            result = new Result(statement.executeUpdate(query), "Update success", 200,true);
+            result = new Result(statement.executeUpdate(query), "Update sukses", 200,true);
         } catch (Exception e) {
             e.printStackTrace();
             result = new Result(null, e.getMessage(), 400,false);
@@ -140,14 +139,14 @@ public class Database {
     }
 
     public Result delete(String tableName, int id) {
-        if (!this.select(tableName, "id=" + id).isSuccess()) return new Result(null, "No matching data found, please check your request", 404, false);
+        if (!this.selectFromTable(tableName, "id=" + id).isSukses()) return new Result(null, "Data tidak ditemukan", 404, false);
 
         Result result;
         try {
             String query = "DELETE FROM " + tableName + " WHERE id=" + id;
             Connection connection = connectionDatabase.getConnection();
             Statement statement = connection.createStatement();
-            result = new Result(statement.executeUpdate(query), "Delete success", 200,true);
+            result = new Result(statement.executeUpdate(query), "Delete sukses", 200,true);
             return result;
         } catch (Exception e) {
             e.printStackTrace();
@@ -156,7 +155,7 @@ public class Database {
         }
     }
 
-    public String getClassName(String tableName) {
+    public String classGetter(String tableName) {
         StringBuilder stringBuilder = new StringBuilder(tableName);
         stringBuilder.deleteCharAt(0);
         stringBuilder.insert(0, tableName.toUpperCase().charAt(0));
@@ -168,7 +167,7 @@ public class Database {
         return stringBuilder.toString();
     }
 
-    public String toJson(Object object) {
+    public String convertJSON(Object object) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             return objectMapper.writeValueAsString(object);
@@ -177,7 +176,7 @@ public class Database {
         }
     }
 
-    public String joinJson(String firstJson, String tableName, String secondJson) {
+    public String JSONBuilder(String firstJson, String tableName, String secondJson) {
         StringBuilder stringBuilder = new StringBuilder(firstJson);
 
         // Array
@@ -207,5 +206,5 @@ public class Database {
     }
 }
 
-}
+
 
