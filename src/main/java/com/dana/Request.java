@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import com.google.gson.Gson;
@@ -70,6 +71,9 @@ public class Request {
                 String requestQuery = exchange.getRequestURI().getQuery();
                 String[] requestPath = ParsingTool.pemisahString(exchange.getRequestURI().getPath(), "/");
                 String requestBody = ParsingTool.parseInputStream(exchange.getRequestBody());
+
+                System.out.println("Request Path: " + Arrays.toString(requestPath)); // Tambahkan log ini
+
 
                 String tableMaster = null;
                 String id = null;
@@ -207,38 +211,50 @@ public class Request {
                         if (requestPath.length == 2) {
                             assert id != null;
                             response.handlePut(tableMaster, Integer.parseInt(id), jsonNode);
-                        } else if (requestPath.length == 5 && "customer".equals(requestPath[1]) && "shippingAddresses".equals(requestPath[3])) {
-
-                            int customerId = Integer.parseInt(requestPath[2]);
-                            int addressId = Integer.parseInt(requestPath[5]); // Ambil ID alamat dari path
-
-                            // Lakukan penanganan pembaruan alamat pengiriman
-                            ShippingAddresses updatedAddress = ParsingTool.jsonParsing(requestBody, ShippingAddresses.class);
-                            boolean success = Request.updateShippingAddressById(addressId, updatedAddress);
-
-                            // Kirim respons berdasarkan hasil pembaruan
-                            if (success) {
-                                String responseMsg = "{" +
-                                        "\"status\": 200," +
-                                        "\"message\": \"Shipping address updated successfully\"" +
-                                        "}";
-                                exchange.sendResponseHeaders(200, responseMsg.length());
-                                OutputStream os = exchange.getResponseBody();
-                                os.write(responseMsg.getBytes());
-                                os.close();
-                            } else {
-                                String responseMsg = "{" +
-                                        "\"status\": 404," +
-                                        "\"message\": \"Shipping address with ID " + addressId + " not found\"" +
-                                        "}";
-                                exchange.sendResponseHeaders(404, responseMsg.length());
-                                OutputStream os = exchange.getResponseBody();
-                                os.write(responseMsg.getBytes());
-                                os.close();
+                        } else if (requestPath.length == 4 && "customer".equals(requestPath[1]) && "shippingAddresses".equals(requestPath[3])) {
+                            try {
+                                int customerId = Integer.parseInt(requestPath[2]);
+                                int addressId = Integer.parseInt(requestPath[4]);
+                                String title = jsonNode != null && jsonNode.has("title") ? jsonNode.get("title").asText() : null;
+                                boolean updated = updateShippingAddressById(customerId, addressId, title);
+                                if (updated) {
+                                    String successResponse = "{" +
+                                            "\"status\": 200," +
+                                            "\"message\": \"Shipping address updated successfully\"" +
+                                            "}";
+                                    exchange.sendResponseHeaders(200, successResponse.getBytes().length);
+                                    OutputStream os = exchange.getResponseBody();
+                                    os.write(successResponse.getBytes());
+                                    os.close();
+                                } else {
+                                    String notFoundResponse = "{" +
+                                            "\"status\": 404," +
+                                            "\"message\": \"Shipping address with ID " + addressId + " not found\"" +
+                                            "}";
+                                    exchange.sendResponseHeaders(404, notFoundResponse.getBytes().length);
+                                    OutputStream os = exchange.getResponseBody();
+                                    os.write(notFoundResponse.getBytes());
+                                    os.close();
+                                }
+                            } catch (NumberFormatException e) {
+                                response.send(statusCode = 400, "{" +
+                                        "\"status\": 400," +
+                                        "\"message\": \"Invalid ID format\"" +
+                                        "}");
                             }
+                        }  else {
+                            String responseMsg = "{" +
+                                    "\"status\": 404," +
+                                    "\"message\": \"Shipping address with ID " + requestPath[3] + " not found\"" +
+                                    "}";
+                            exchange.sendResponseHeaders(404, responseMsg.length());
+                            OutputStream os = exchange.getResponseBody();
+                            os.write(responseMsg.getBytes());
+                            os.close();
                         }
 
-                        return;
+
+                    return;
                     case "DELETE":
                         if (requestPath.length == 2 && "item".equals(requestPath[0])) {
                             assert id != null;
@@ -330,17 +346,12 @@ public class Request {
         return requestMethodsAllowed;
     }
 
-    public static boolean updateShippingAddressById(int id, ShippingAddresses address) {
+    private static boolean updateShippingAddressById(int customerId, int addressId, String title) {
         try (Connection conn = connectionDatabase.getConnection()) {
-            String sql = "UPDATE shippingAddresses SET title = ?, line1 = ?, line2 = ?, city = ?, province = ?, postcode = ? WHERE id = ?";
+            String sql = "UPDATE shippingAddresses SET title = ? WHERE id = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, address.getTitle());
-            pstmt.setString(2, address.getLine1());
-            pstmt.setString(3, address.getLine2());
-            pstmt.setString(4, address.getCity());
-            pstmt.setString(5, address.getProvince());
-            pstmt.setString(6, address.getPostcode());
-            pstmt.setInt(7, id);
+            pstmt.setString(1, title);
+            pstmt.setInt(2, addressId);
             int rowsUpdated = pstmt.executeUpdate();
             return rowsUpdated > 0;
         } catch (SQLException e) {
@@ -348,5 +359,5 @@ public class Request {
             return false;
         }
     }
-}
+    }
 
