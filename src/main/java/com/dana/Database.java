@@ -1,11 +1,12 @@
 package com.dana;
 
-import com.dana.Main;
-import com.dana.ParsingTool;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.sql.*;
 import java.util.*;
+import java.lang.String;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class Database {
     private final String[] tabel = {
@@ -16,6 +17,67 @@ public class Database {
             "subscription_item",
             "subscriptions"
     };
+
+    public JSONObject getCustomerAndSubscriptionsStatusByCustomerId(int id, String status) throws SQLException {
+        Connection conn = null;
+        PreparedStatement state = null;
+        ResultSet result = null;
+        JSONObject customerRecord = new JSONObject();
+        JSONArray listSubs = new JSONArray();
+
+        try {
+            Class.forName("org.sqlite.JDBC");
+            conn = DriverManager.getConnection("jdbc:sqlite:subscription.db");
+            System.out.println("has connected to the database");
+
+            String query = "SELECT s.*, cu.first_name, cu.last_name, cu.email, cu.phone_number " +
+                    "FROM subscriptions s " +
+                    "JOIN customers cu ON cu.id = s.customer " +
+                    "WHERE cu.id = ? AND s.status = ?";
+            state = conn.prepareStatement(query);
+            state.setInt(1, id);
+            state.setString(2, status);
+            result = state.executeQuery();
+
+            boolean customerDetailsSet = false;
+            while (result.next()) {
+                if (!customerDetailsSet) {
+                    customerRecord.put("id", result.getInt("customer"));
+                    customerRecord.put("first_name", result.getString("first_name"));
+                    customerRecord.put("last_name", result.getString("last_name"));
+                    customerRecord.put("email", result.getString("email"));
+                    customerRecord.put("phone_number", result.getString("phone_number"));
+                    customerDetailsSet = true;
+                }
+
+                JSONObject subsJson = new JSONObject();
+                subsJson.put("id", result.getInt("id"));
+                subsJson.put("customer", result.getInt("customer"));
+                subsJson.put("billing_period", result.getInt("billing_period"));
+                subsJson.put("billing_period_unit", result.getString("billing_period_unit"));
+                subsJson.put("total_due", result.getInt("total_due"));
+                subsJson.put("actived_at", result.getInt("actived_at"));
+                subsJson.put("current_term_start", result.getString("current_term_start"));
+                subsJson.put("current_term_end", result.getString("current_term_end"));
+                subsJson.put("status", result.getString("status"));
+
+                listSubs.put(subsJson);
+            }
+
+            customerRecord.put("subscriptions", listSubs);
+
+        } catch (SQLException | ClassNotFoundException e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            throw new RuntimeException(e);
+        } finally {
+            if (result != null) result.close();
+            if (state != null) state.close();
+            if (conn != null) conn.close();
+        }
+        return customerRecord;
+    }
+
+
     public Result selectFromTable(String tableName, String condition) {
         List<String> rows = new ArrayList<>();
         try {
@@ -42,6 +104,54 @@ public class Database {
 
                 ObjectMapper objectMapper = new ObjectMapper();
                 Object object = objectMapper.readValue(row.toString(), Class.forName("com.dana." + classGetter(tableName)));
+                rows.add(convertJSON(object));
+            }
+
+            if (rows.size() == 0) return new Result(null, "Data tidak ditemukan", 404, false);
+            else if (rows.size() == 1) return new Result(rows.get(0), "Select sukses", 200, true);
+            return new Result(rows, "Select sukses", 200, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(null, e.getMessage(), 400, false);
+        }
+
+    }
+
+    public Result selectColumnsFromTable(String tableName, String condition, List<String> columns) {
+        List<String> rows = new ArrayList<>();
+        try {
+            StringBuilder query = new StringBuilder("SELECT ");
+            if (columns == null || columns.isEmpty()) {
+                query.append("*");
+            } else {
+                query.append(String.join(", ", columns));
+            }
+            query.append(" FROM ").append(tableName);
+            if (condition != null) {
+                query.append(" WHERE ").append(condition);
+            }
+
+            Connection connection = connectionDatabase.getConnection();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query.toString());
+
+            ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+            int columnCount = resultSetMetaData.getColumnCount();
+
+            while (resultSet.next()) {
+                StringBuilder row = new StringBuilder();
+                row.append("{");
+                for (int i = 1; i <= columnCount; i++) {
+                    String columnName = resultSetMetaData.getColumnName(i);
+                    Object columnValue = resultSet.getObject(i);
+                    row.append("\"").append(columnName).append("\":\"").append(columnValue).append("\",");
+                }
+                row.deleteCharAt(row.length() - 1);  // Remove the last comma
+                row.append("}");
+                // End of formatting
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                Object object = objectMapper.readValue(row.toString(), Class.forName("com.dana." + columngetter(tableName)));
                 rows.add(convertJSON(object));
             }
 
@@ -159,15 +269,10 @@ public class Database {
         StringBuilder stringBuilder = new StringBuilder(tableName);
         stringBuilder.deleteCharAt(0);
         stringBuilder.insert(0, tableName.toUpperCase().charAt(0));
-
-        stringBuilder.deleteCharAt(stringBuilder.length() - 1);
-        if (stringBuilder.charAt(stringBuilder.length() - 1) == 'e') {
-            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
-        }
         return stringBuilder.toString();
     }
 
-    public String convertJSON(Object object) {
+    public static String convertJSON(Object object) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             return objectMapper.writeValueAsString(object);
@@ -176,7 +281,7 @@ public class Database {
         }
     }
 
-    public String JSONBuilder(String firstJson, String tableName, String secondJson) {
+    public static String JSONBuilder(String firstJson, String tableName, String secondJson) {
         StringBuilder stringBuilder = new StringBuilder(firstJson);
 
         // Array
@@ -202,8 +307,23 @@ public class Database {
     }
 
     public String[] getTables() {
-        return tables;
+        return tabel;
     }
+
+    private String columngetter(String tableName) {
+        switch (tableName) {
+            case "customer":
+                return "Customer";
+            case "subscriptionItems":
+                return "SubscriptionItems";
+            case "item":
+                return "Item";
+            default:
+                return "";
+        }
+    }
+
+
 }
 
 
