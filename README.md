@@ -3,23 +3,6 @@
 Dibuat oleh 
 Putu Devasya Aditya Widyadana - 2205551070 - PBO E
 
-## Daftar Isi
-
--   [Back End API Sistem Pembayaran Subscriptions]()
-    -   [Daftar Isi](#daftar-isi)
-    -   [Pengenalan](#pengenalan)
-    -   [Alat](#alat)
-    -   [Prasyarat](#prasyarat)
-    -   [Batasan Program](#batasan-program)
-    -   [Penggunaan](#penggunaan)
-        -   [Persiapan](#persiapan)
-        -   [Otorisasi](#otorisasi)
-        -   [GET](#get)
-        -   [POST](#post)
-        -   [PUT](#put)
-        -   [DELETE](#delete)
-    -   [Penutup](#penutup)
-
 ## Pengenalan
 
 Program **API Sistem Pembayaran Subscriptions** adalah program yang memungkinkan pengguna untuk terhubung dan memanipulasi basis data dari **subscriptions**.
@@ -37,8 +20,8 @@ Program **API Sistem Pembayaran Subscriptions** adalah program yang memungkinkan
 cards
 customer
 item
-shipping_addresses
-subscription_item
+shippingAddresses
+subscriptionItem
 subscriptions
 ```
 
@@ -62,23 +45,7 @@ Berikut adalah langkah-langkah untuk menjalankan program ini:
 
 #### Persiapan
 
-Untuk dapat melakukan _clone_ repositori ini dengan menggunakan _command_ Git sebagai berikut:
 
-```
-$ git clone https://github.com/bayurkp/Java-Backend-API
-```
-
-Setelah melakukan _cloning_, Anda harus memenuhi prasyarat pada bagian sebelumnya. Karena proyek ini menggunakan Maven sebagai _build system_-nya maka untuk melaukan instalasi, gunakan _command_ berikut:
-
-```
-$ mvn install
-```
-
-Jalankan `com.bay.server.Main.main` maka Anda dapat mengakses program API ini pada:
-
-```
-localhost:8070
-```
 
 #### Otorisasi
 
@@ -102,112 +69,72 @@ Berikut pesan yang dikirimkan jika pengguna tidak menggunakan _API Key_.
 
 ![Select users](img/Authorization.png "Select users")
 
+
+
 #### GET
 
-Metode GET digunakan untuk mengambil data dari server.
+Metode GET digunakan untuk mendapatkan data dari server.
 
--   **`localhost:8070/{table}`**
+• GET /customers => daftar semua pelanggan
+• GET /customers/{id} => informasi pelanggan dan alamatnya
+• GET /customers/{id}/cards => daftar kartu kredit/debit milik pelanggan
+• GET /customers/{id}/subscriptions => daftar semua subscriptions milik
+pelanggan
+• GET /customers/{id}/subscriptions?subscriptions_status={active, cancelled,
+non-renewing} => daftar semua subscriptions milik pelanggan yg berstatus
+aktif / cancelled / non-renewing
 
-Menampilkan seluruh data pada tabel **`{table}`**.
+• GET /subscriptions => daftar semua subscriptions
+• GET /subscriptions?sort_by=current_term_end&sort_type=desc => daftar
+semua subscriptions diurutkan berdasarkan current_term_end secara
+descending
+• GET /subscriptions/{id} =>
+• informasi subscription,
+• customer: id, first_name, last_name,
+• subscription_items: quantity, amount,
+• item: id, name, price, type
 
-![Select users](img/GET-1.png "Select users")
-
-![Select products](img/GET-2.png "Select products")
-
--   **`localhost:8070/users/{id}`**
-
-Menampilkan informasi _user_ dan alamatnya.
-
-![Select users and addressess](img/GET-3.png "Select users and addressess")
-
--   **`localhost:8070/users/{id}/products`**
-
-Menampilkan daftar semua produk milik user ber-ID {id}.
-
-![Select user and her/his product(s)](img/GET-4.png "Select user and her/his product(s)")
-
--   **`localhost:8070/users/{id}/orders`**
-
-Menampilkan daftar semua _order_ milik _user_ ber-ID {id}.
-
-![Select user and her/his order(s)](img/GET-5.png "Select user and her/his order(s)")
-
--   **`localhost:8070/users/{id}/reviews`**
-
-Menampilan semua _review_ yang dibuat oleh _user_ ber-ID {id}.
-
-![Select user and her/his review(s)](img/GET-6.png "Select user and her/his review(s)")
-
--   **`localhost:8070/orders/{id}`**
-
-Menampilkan informasi _order_, _buyer_, _order detail_, _review_, _title_ produk, dan _price_
-
-![Select order and the detail(s)](img/GET-7.png "Select order and the detail(s)")
-
--   **`localhost:8070/products/{id}`**
-
-Menampilkan daftar produk ber-ID {id} beserta identitas _seller_.
-
-![Select product and the seller](img/GET-8.png "Select product and the seller")
-
--   **`localhost:8070/{table}?{params}`**
-
-Menampilkan data berdasarkan parameter pada _request query_. Terdapat beberapa ketentuan untuk _key_ dan _value_ dari parameter yang bisa digunakan:
-
-```
-f = field
-c = condition
-v = value
-```
-
-Kondisi yang dapat digunakan antara lain:
-
-```
-greaterEqual    (>=)
-greater         (>)
-lessEqual       (<=)
-less            (<)
-equal           (=)
-notEqual        (<>)
-```
-
-Berikut contoh penggunaannya:
-
-```
-localhost:8070/products?f=stock&c=greaterEqual&v=30
-```
-
-Berikut hasilnya:
-
-![Select data with paramater f, c, and v](img/GET-9.png "Select with paramater f, c, and v")
-
-Atau, Anda dapat menggunakan _query_ untuk _field_ tertentu seperti contoh berikut:
-
-```
-localhost:8070/users?firstName=John
-```
-
-Berikut hasilnya:
-
-!
+• GET /items => daftar semua produk
+• GET /items?is_active=true => daftar semua produk yg memiliki status aktif
+• GET /items/{id} => informasi produk
 
 #### POST
 
 Metode POST digunakan untuk mengirimkan data ke server.
-
+```
+POST /customers => buat pelanggan baru
+```
+```
+POST /subscriptions => buat subscription baru
+```
+```
+POST /items => buat item baru
+```
 
 #### PUT
 
 Metode PUT digunakan untuk mengubah data pada server.
 
 
+
+```
+PUT /customers/{id}
+```
+
+```
+PUT /items/{id}
+```
+
 #### DELETE
 
 Metode DELETE digunakan untuk menghapus data pada server.
 
+```
+DELETE /items/{id}
+```
+DELETE untuk mengubah status dalam tabel item yaitu status dalam kolom isActive menjadi **false**
 
-
-## Penutup
-
-Terimakasih.
-
+```
+DELETE /customers/{id}/cards/{id}
+```
+DELETE untuk menghapus informasi kartu kredit pelanggan jika isPrimary bernilai false
