@@ -62,13 +62,15 @@ Metode GET digunakan untuk mendapatkan data dari server.
 
 ```
 GET /customer 
+localhost:9071/customer
 ```
 Perintah GET untuk mendapatkan seluruh info dalam tabel **customer**
 
 ![alt text](<img/Screenshot (418).png>)
 
 ```
-GET /customer/{id} 
+GET /customer/{id}
+localhost:9071/customer/{id}
 ```
 Perintah GET untuk mendapatkan seluruh info salah satu id dalam tabel **customer**
 
@@ -76,6 +78,7 @@ Perintah GET untuk mendapatkan seluruh info salah satu id dalam tabel **customer
 
 ```
 GET /customer/{id}/cards 
+localhost:9071/customer/{id}/cards
 ```
 Perintah GET untuk mendapatkan seluruh info salah satu customer berdasarkan id dengan detail cards yang dimiliki
 
@@ -83,6 +86,7 @@ Perintah GET untuk mendapatkan seluruh info salah satu customer berdasarkan id d
 
 ```
 GET /customer/{id}/subscriptions 
+localhost:9071/customer/{id}/subscriptions
 ```
 Perintah GET untuk mendapatkan seluruh info salah satu customer berdasarkan id dengan detail subscriptions yang dimiliki
 
@@ -91,6 +95,8 @@ Perintah GET untuk mendapatkan seluruh info salah satu customer berdasarkan id d
 ```
 GET /customer/{id}/subscriptions?status={active, cancelled,
 non-renewing}
+localhost:9071/customer/{id}/subscriptions?status={active, cancelled,
+non-renewing}
 ```
 Perintah GET untuk mendapatkan seluruh info salah satu customer berdasarkan id dengan detail subscriptions yang dimiliki, difilter berdasarkan subscriptions_status (active, cancelled, non-renewing)
 
@@ -98,6 +104,7 @@ Perintah GET untuk mendapatkan seluruh info salah satu customer berdasarkan id d
 
 ```
 GET /subscriptions
+localhost:9071/subscriptions
 ```
 Perintah GET untuk mendapatkan seluruh info dalam tabel subscriptions
 
@@ -105,6 +112,7 @@ Perintah GET untuk mendapatkan seluruh info dalam tabel subscriptions
 
 ```
 GET /subscriptions?sort_by=current_term_end&sort_type=desc 
+localhost:9071/subscriptions?sort_by=current_term_end&sort_type=desc
 ```
 Perintah GET untuk mendapatkan seluruh info dalam tabel subscriptions dengan pengurutan berdasarkan current_term_end dan tipe pengurutan desc
 
@@ -112,6 +120,7 @@ Perintah GET untuk mendapatkan seluruh info dalam tabel subscriptions dengan pen
 
 ```
 GET /subscriptions/{id} 
+localhost:9071/subscriptions/{id}
 ```
 Perintah GET untuk mendapatkan info salah satu subscription berdasarkan id
 
@@ -119,13 +128,15 @@ Perintah GET untuk mendapatkan info salah satu subscription berdasarkan id
 
 ![alt text](<img/Screenshot (429).png>)
 ```
-GET /items
+GET /item
+localhost:9071/item
 ```
 Perintah GET untuk mendapatkan seluruh info dalam tabel items
 
 ![alt text](<img/Screenshot (430).png>)
 ```
 GET /item?isActive=true 
+localhost:9071/item?isActive=true
 ```
 Perintah GET untuk mendapatkan seluruh info dalam tabel items yang memiliki is_active bernilai true
 
@@ -133,6 +144,7 @@ Perintah GET untuk mendapatkan seluruh info dalam tabel items yang memiliki is_a
 
 ```
 GET /item/{id}
+localhost:9071/item/{id}
 ```
 Perintah GET untuk mendapatkan info salah satu item berdasarkan id
 
@@ -143,6 +155,7 @@ Perintah GET untuk mendapatkan info salah satu item berdasarkan id
 Metode POST digunakan untuk mengirimkan data ke server.
 ```
 POST /customer
+localhost:9071/customer
 ```
 Perintah POST untuk membuat customer baru
 
@@ -151,6 +164,7 @@ Perintah POST untuk membuat customer baru
 ![alt text](<img/Screenshot (435).png>)
 ```
 POST /subscriptions 
+localhost:9071/subscriptions
 ```
 Perintah POST untuk membuat subscription baru
 
@@ -161,6 +175,7 @@ Perintah POST untuk membuat subscription baru
 
 ```
 POST /item
+localhost:9071/item
 ```
 Perintah POST untuk membuat item baru
 
@@ -175,6 +190,7 @@ Perintah POST untuk membuat item baru
 Metode PUT digunakan untuk mengubah data pada server.
 ```
 PUT /customer/{id}
+localhost:9071/customer/{id}
 ```
 Perintah PUT untuk mengubah data customer berdasarkan id
 
@@ -184,6 +200,7 @@ Perintah PUT untuk mengubah data customer berdasarkan id
 
 ```
 PUT /item/{id}
+localhost:9071/item/{id}
 ```
 Perintah PUT untuk mengubah data item berdasarkan id
 
@@ -197,6 +214,7 @@ Metode DELETE digunakan untuk menghapus data pada server.
 
 ```
 DELETE /item/{id}
+localhost:9071/item/{id}
 ```
 Perintah DELETE untuk mengubah status item dalam tabel menjadi tidak aktif (isActive=false) berdasarkan id
 
@@ -207,6 +225,7 @@ Perintah DELETE untuk mengubah status item dalam tabel menjadi tidak aktif (isAc
 
 ```
 DELETE /customer/{id}/cards/{id}
+localhost:9071/customer/{id}/cards/{id}
 ```
 Perintah DELETE untuk menghapus informasi kartu kredit pelanggan berdasarkan customer id dan card id jika isPrimary bernilai false
 
