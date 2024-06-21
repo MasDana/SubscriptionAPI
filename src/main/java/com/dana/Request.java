@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import io.github.cdimascio.dotenv.Dotenv;
-import java.io.IOException;
-import java.io.OutputStream;
+
+import java.io.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -209,51 +209,64 @@ public class Request {
                         return;
                     case "PUT":
                         if (requestPath.length == 2) {
-                            assert id != null;
-                            response.handlePut(tableMaster, Integer.parseInt(id), jsonNode);
-                        } else if (requestPath.length == 4 && "customer".equals(requestPath[1]) && "shippingAddresses".equals(requestPath[3])) {
-                            try {
-                                int customerId = Integer.parseInt(requestPath[2]);
-                                int addressId = Integer.parseInt(requestPath[4]);
-                                String title = jsonNode != null && jsonNode.has("title") ? jsonNode.get("title").asText() : null;
-                                boolean updated = updateShippingAddressById(customerId, addressId, title);
-                                if (updated) {
-                                    String successResponse = "{" +
-                                            "\"status\": 200," +
-                                            "\"message\": \"Shipping address updated successfully\"" +
-                                            "}";
-                                    exchange.sendResponseHeaders(200, successResponse.getBytes().length);
-                                    OutputStream os = exchange.getResponseBody();
-                                    os.write(successResponse.getBytes());
-                                    os.close();
-                                } else {
-                                    String notFoundResponse = "{" +
-                                            "\"status\": 404," +
-                                            "\"message\": \"Shipping address with ID " + addressId + " not found\"" +
-                                            "}";
-                                    exchange.sendResponseHeaders(404, notFoundResponse.getBytes().length);
-                                    OutputStream os = exchange.getResponseBody();
-                                    os.write(notFoundResponse.getBytes());
-                                    os.close();
+                        assert id != null;
+                        response.handlePut(tableMaster, Integer.parseInt(id), jsonNode);
+                    } else if (requestPath.length == 4 && "customer".equals(requestPath[0]) && "shippingAddresses".equals(requestPath[2])) {
+                        try {
+                            int customerId = Integer.parseInt(requestPath[1]);
+                            int addressId = Integer.parseInt(requestPath[3]);
+
+                            // Membaca request body ke dalam string
+                            InputStream requestBodyStream = exchange.getRequestBody();
+                            StringBuilder sb = new StringBuilder();
+                            try (BufferedReader reader = new BufferedReader(new InputStreamReader(requestBodyStream, StandardCharsets.UTF_8))) {
+                                String line;
+                                while ((line = reader.readLine()) != null) {
+                                    sb.append(line);
                                 }
-                            } catch (NumberFormatException e) {
-                                response.send(statusCode = 400, "{" +
-                                        "\"status\": 400," +
-                                        "\"message\": \"Invalid ID format\"" +
-                                        "}");
                             }
-                        }  else {
-                            String responseMsg = "{" +
-                                    "\"status\": 404," +
-                                    "\"message\": \"Shipping address with ID " + requestPath[3] + " not found\"" +
-                                    "}";
-                            exchange.sendResponseHeaders(404, responseMsg.length());
-                            OutputStream os = exchange.getResponseBody();
-                            os.write(responseMsg.getBytes());
-                            os.close();
+                            requestBody = sb.toString();
+
+                            // Mengurai JSON dari request body
+                            ShippingAddresses shipAdd = new Gson().fromJson(requestBody, ShippingAddresses.class);
+
+                            // Memperbarui alamat pengiriman
+                            boolean success = updateShippingAddressById(customerId, addressId, shipAdd.getTitle());
+
+                            // Mengirim respons
+                            String responseMsg = success ?
+                                    "{\"status\": 200, \"message\": \"Shipping address updated successfully\"}" :
+                                    "{\"status\": 404, \"message\": \"Shipping address not found\"}";
+
+                            statusCode = success ? 200 : 404;
+                            exchange.sendResponseHeaders(statusCode, responseMsg.length());
+                            try (OutputStream os = exchange.getResponseBody()) {
+                                os.write(responseMsg.getBytes());
+                            }
+                        } catch (NumberFormatException e) {
+                            String responseMsg = "{\"status\": 400, \"message\": \"Invalid ID format\"}";
+                            exchange.sendResponseHeaders(400, responseMsg.length());
+                            try (OutputStream os = exchange.getResponseBody()) {
+                                os.write(responseMsg.getBytes());
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            String responseMsg = "{\"status\": 500, \"message\": \"Internal server error\"}";
+                            exchange.sendResponseHeaders(500, responseMsg.length());
+                            try (OutputStream os = exchange.getResponseBody()) {
+                                os.write(responseMsg.getBytes());
+                            }
                         }
-
-
+                    } else {
+                        String responseMsg = "{" +
+                                "\"status\": 404," +
+                                "\"message\": \"Shipping address with ID " + requestPath[3] + " not found\"" +
+                                "}";
+                        exchange.sendResponseHeaders(404, responseMsg.length());
+                        try (OutputStream os = exchange.getResponseBody()) {
+                            os.write(responseMsg.getBytes());
+                        }
+                    }
                     return;
                     case "DELETE":
                         if (requestPath.length == 2 && "item".equals(requestPath[0])) {
