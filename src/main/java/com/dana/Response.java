@@ -172,37 +172,77 @@ public class Response {
         StringBuilder fieldKeys = new StringBuilder();
         StringBuilder fieldValues = new StringBuilder();
 
-        Iterator<Map.Entry<String, JsonNode>> fields = jsonNode.fields();
-
-        while (fields.hasNext()) {
-            Map.Entry<String, JsonNode> field = fields.next();
-            fieldKeys.append(field.getKey());
-            fieldKeys.append(",");
-
-            fieldValues.append(field.getValue());
-            fieldValues.append(",");
+        // Validate input
+        if (!isValidInput(jsonNode)) {
+            int statusCode = 400;
+            this.send(statusCode, "{" +
+                    "\"status\": " + statusCode + "," +
+                    "\"message\": \"Input data is incomplete or invalid\"" +
+                    "}");
+            return;
         }
 
-        // Remove the comma (,) character at the end of the string
-        fieldKeys.deleteCharAt(fieldKeys.length() - 1);
-        fieldValues.deleteCharAt(fieldValues.length() - 1);
+        try {
+            Iterator<Map.Entry<String, JsonNode>> fields = jsonNode.fields();
 
-        Result result = database.insertToTable(tableName, fieldKeys.toString(), fieldValues.toString());
-        int statusCode = result.getStatus();
+            while (fields.hasNext()) {
+                Map.Entry<String, JsonNode> field = fields.next();
+                fieldKeys.append(field.getKey());
+                fieldKeys.append(",");
 
-        if (result.isSukses()) {
+                fieldValues.append(field.getValue());
+                fieldValues.append(",");
+            }
+
+            // Remove the comma (,) character at the end of the string
+            fieldKeys.deleteCharAt(fieldKeys.length() - 1);
+            fieldValues.deleteCharAt(fieldValues.length() - 1);
+
+            Result result = database.insertToTable(tableName, fieldKeys.toString(), fieldValues.toString());
+            int statusCode = result.getStatus();
+
+            if (result.isSukses()) {
+                this.send(statusCode, "{" +
+                        "\"status\": " + statusCode + "," +
+                        "\"message\": " + result.getPesan() + "," +
+                        "\"data\": " + result.getData() +
+                        "}");
+            } else {
+                this.send(statusCode, "{" +
+                        "\"status\": " + statusCode + "," +
+                        "\"message\": " + result.getPesan() +
+                        "}");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            int statusCode = 500;
             this.send(statusCode, "{" +
                     "\"status\": " + statusCode + "," +
-                    "\"message\": " + result.getPesan() + "," +
-                    "\"data\": " + result.getData() +
+                    "\"message\": \"Input/Output error occurred: " + e.getMessage() + "\"" +
                     "}");
-        } else {
+        } catch (Exception e) {
+            e.printStackTrace();
+            int statusCode = 500;
             this.send(statusCode, "{" +
                     "\"status\": " + statusCode + "," +
-                    "\"message\": " + result.getPesan()  +
+                    "\"message\": \"An unexpected error occurred: " + e.getMessage() + "\"" +
                     "}");
         }
     }
+
+    private boolean isValidInput(JsonNode jsonNode) {
+        // Define required fields based on your database schema
+        List<String> requiredFields = Arrays.asList("name", "description", "price");
+
+        for (String field : requiredFields) {
+            if (!jsonNode.has(field) || jsonNode.get(field).isNull()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 
     public void handlePut(String tableName, int id, JsonNode jsonNode) throws IOException {
         StringBuilder fieldKeys = new StringBuilder();
