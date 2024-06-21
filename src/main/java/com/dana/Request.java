@@ -2,6 +2,7 @@ package com.dana;
 
 import com.dana.data.Main;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonObject;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -16,6 +17,7 @@ import java.util.List;
 import com.google.gson.Gson;
 import java.util.Map;
 import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
 
 public class Request {
     private final String[] requestMethodsAllowed = {
@@ -212,52 +214,36 @@ public class Request {
                         assert id != null;
                         response.handlePut(tableMaster, Integer.parseInt(id), jsonNode);
                     } else if (requestPath.length == 4 && "customer".equals(requestPath[0]) && "shippingAddresses".equals(requestPath[2])) {
-                        try {
-                            int customerId = Integer.parseInt(requestPath[1]);
-                            int addressId = Integer.parseInt(requestPath[3]);
+                            try {
+                                int customerId = Integer.parseInt(requestPath[1]);
+                                int addressId = Integer.parseInt(requestPath[3]);
 
-                            // Membaca request body ke dalam string
-                            InputStream requestBodyStream = exchange.getRequestBody();
-                            StringBuilder sb = new StringBuilder();
-                            try (BufferedReader reader = new BufferedReader(new InputStreamReader(requestBodyStream, StandardCharsets.UTF_8))) {
-                                String line;
-                                while ((line = reader.readLine()) != null) {
-                                    sb.append(line);
-                                }
-                            }
-                            requestBody = sb.toString();
+                                requestBody = new String(exchange.getRequestBody().readAllBytes());
+                                // Assume requestBody contains fieldKeys and fieldValues as JSON string
+                                Gson gson = new Gson();
+                                JsonObject jsonObject = gson.fromJson(requestBody, JsonObject.class);
+                                String fieldKeys = jsonObject.get("fieldKeys").getAsString();
+                                String fieldValues = jsonObject.get("fieldValues").getAsString();
 
-                            // Mengurai JSON dari request body
-                            ShippingAddresses shipAdd = new Gson().fromJson(requestBody, ShippingAddresses.class);
 
-                            // Memperbarui alamat pengiriman
-                            boolean success = updateShippingAddressById(customerId, addressId, shipAdd.getTitle());
 
-                            // Mengirim respons
-                            String responseMsg = success ?
-                                    "{\"status\": 200, \"message\": \"Shipping address updated successfully\"}" :
-                                    "{\"status\": 404, \"message\": \"Shipping address not found\"}";
-
-                            statusCode = success ? 200 : 404;
-                            exchange.sendResponseHeaders(statusCode, responseMsg.length());
-                            try (OutputStream os = exchange.getResponseBody()) {
+                            } catch (NumberFormatException e) {
+                                String responseMsg = "Invalid ID format";
+                                exchange.sendResponseHeaders(400, responseMsg.length());
+                                OutputStream os = exchange.getResponseBody();
                                 os.write(responseMsg.getBytes());
-                            }
-                        } catch (NumberFormatException e) {
-                            String responseMsg = "{\"status\": 400, \"message\": \"Invalid ID format\"}";
-                            exchange.sendResponseHeaders(400, responseMsg.length());
-                            try (OutputStream os = exchange.getResponseBody()) {
+                                os.close();
+                            } catch (IOException e) {
+                                String responseMsg = "Invalid ID format";
+                                exchange.sendResponseHeaders(400, responseMsg.length());
+                                OutputStream os = exchange.getResponseBody();
                                 os.write(responseMsg.getBytes());
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            String responseMsg = "{\"status\": 500, \"message\": \"Internal server error\"}";
-                            exchange.sendResponseHeaders(500, responseMsg.length());
-                            try (OutputStream os = exchange.getResponseBody()) {
-                                os.write(responseMsg.getBytes());
+                                os.close();
                             }
                         }
-                    } else {
+
+
+                        else {
                         String responseMsg = "{" +
                                 "\"status\": 404," +
                                 "\"message\": \"Shipping address with ID " + requestPath[3] + " not found\"" +

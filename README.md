@@ -75,21 +75,21 @@ Perintah GET untuk mendapatkan seluruh info salah satu id dalam tabel **customer
 ![alt text](<img/Screenshot (419).png>)
 
 ```
-GET /customers/{id}/cards 
+GET /customer/{id}/cards 
 ```
 Perintah GET untuk mendapatkan seluruh info salah satu customer berdasarkan id dengan detail cards yang dimiliki
 
 ![alt text](<img/Screenshot (422).png>)
 
 ```
-GET /customers/{id}/subscriptions 
+GET /customer/{id}/subscriptions 
 ```
 Perintah GET untuk mendapatkan seluruh info salah satu customer berdasarkan id dengan detail subscriptions yang dimiliki
 
 ![alt text](<img/Screenshot (421).png>)
 
 ```
-GET /customers/{id}/subscriptions?subscriptions_status={active, cancelled,
+GET /customer/{id}/subscriptions?status={active, cancelled,
 non-renewing}
 ```
 Perintah GET untuk mendapatkan seluruh info salah satu customer berdasarkan id dengan detail subscriptions yang dimiliki, difilter berdasarkan subscriptions_status (active, cancelled, non-renewing)
@@ -119,20 +119,20 @@ Perintah GET untuk mendapatkan info salah satu subscription berdasarkan id
 
 ![alt text](<img/Screenshot (429).png>)
 ```
-GET /items 
+GET /items
 ```
 Perintah GET untuk mendapatkan seluruh info dalam tabel items
 
 ![alt text](<img/Screenshot (430).png>)
 ```
-GET /items?is_active=true 
+GET /item?isActive=true 
 ```
 Perintah GET untuk mendapatkan seluruh info dalam tabel items yang memiliki is_active bernilai true
 
 ![alt text](<img/Screenshot (431).png>)
 
 ```
-GET /items/{id}
+GET /item/{id}
 ```
 Perintah GET untuk mendapatkan info salah satu item berdasarkan id
 
@@ -142,7 +142,7 @@ Perintah GET untuk mendapatkan info salah satu item berdasarkan id
 
 Metode POST digunakan untuk mengirimkan data ke server.
 ```
-POST /customers
+POST /customer
 ```
 Perintah POST untuk membuat customer baru
 
@@ -160,7 +160,7 @@ Perintah POST untuk membuat subscription baru
 
 
 ```
-POST /items
+POST /item
 ```
 Perintah POST untuk membuat item baru
 
@@ -174,7 +174,7 @@ Perintah POST untuk membuat item baru
 
 Metode PUT digunakan untuk mengubah data pada server.
 ```
-PUT /customers/{id}
+PUT /customer/{id}
 ```
 Perintah PUT untuk mengubah data customer berdasarkan id
 
@@ -196,7 +196,7 @@ Perintah PUT untuk mengubah data item berdasarkan id
 Metode DELETE digunakan untuk menghapus data pada server.
 
 ```
-DELETE /items/{id}
+DELETE /item/{id}
 ```
 Perintah DELETE untuk mengubah status item dalam tabel menjadi tidak aktif (isActive=false) berdasarkan id
 
@@ -206,7 +206,7 @@ Perintah DELETE untuk mengubah status item dalam tabel menjadi tidak aktif (isAc
 
 
 ```
-DELETE /customers/{id}/cards/{id}
+DELETE /customer/{id}/cards/{id}
 ```
 Perintah DELETE untuk menghapus informasi kartu kredit pelanggan berdasarkan customer id dan card id jika isPrimary bernilai false
 

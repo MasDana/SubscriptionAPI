@@ -15,7 +15,7 @@ public class Database {
             "item",
             "shippingAddresses",
             "subscriptionItem",
-            "subscription"
+            "subscriptions"
     };
 
     public Result selectFromTable(String tableName, String condition) {
