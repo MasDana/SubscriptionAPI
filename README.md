@@ -10,8 +10,8 @@ Program **API Sistem Pembayaran Subscriptions** adalah program yang memungkinkan
 
 ## Batasan Program
 
--   Hanya _request method_ GET, POST, PUT, dan DELETE yang dizinkan.
--   Tidak diperkenankan kesalahan dalam penulisan nama tabel, berikut daftar tabel dengan penulisan yang tepat:
+-   Hanya terdapat request method GET, POST, PUT, dan DELETE
+-   Tidak boleh ada kesalahan penulisan nama tabel, berikut daftar tabel dengan penulisan yang benar:
 
 ```
 cards
@@ -21,7 +21,6 @@ shippingAddresses
 subscriptionItem
 subscriptions
 ```
--   ID merupakan bilangan bulat dari 1 sampai batas kolom pada tabel tertentu.
 
 - Parameter pada URL harus sesuai dengan ketentuan
 
@@ -31,7 +30,7 @@ subscriptions
 ## Penggunaan
 
 Berikut adalah langkah-langkah untuk menjalankan program ini:
-#### Perisapan
+#### Persiapan
 Untuk menggunakan API ini silahkan jalankan com.dana.data.Main. Selanjutnya API sudah bisa diakses pada :
 
 ```
