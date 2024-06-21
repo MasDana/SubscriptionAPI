@@ -1,10 +1,14 @@
 package com.dana;
 
-import org.json.JSONObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class Subscriptions {
     private int id;
@@ -17,144 +21,146 @@ public class Subscriptions {
     private String currentTermEnd;
     private String status;
 
+    @JsonProperty("id")
     public int getId() {
         return id;
     }
 
+    @JsonProperty("id")
     public void setId(int id) {
         this.id = id;
     }
 
+    @JsonProperty("customer")
     public int getCustomer() {
         return customer;
     }
 
+    @JsonProperty("customer")
     public void setCustomer(int customer) {
         this.customer = customer;
     }
 
+    @JsonProperty("billing_period")
     public int getBillingPeriod() {
         return billingPeriod;
     }
 
+    @JsonProperty("billing_period")
     public void setBillingPeriod(int billingPeriod) {
         this.billingPeriod = billingPeriod;
     }
 
-    public String getBillingPeriodUnit(){
+    @JsonProperty("billing_period_unit")
+    public String getBillingPeriodUnit() {
         return billingPeriodUnit;
     }
 
-    public void setBillingPeriodUnit(String billingPeriodUnit){
+    @JsonProperty("billing_period_unit")
+    public void setBillingPeriodUnit(String billingPeriodUnit) {
         this.billingPeriodUnit = billingPeriodUnit;
     }
 
+    @JsonProperty("total_due")
     public int getTotalDue() {
         return totalDue;
     }
 
+    @JsonProperty("total_due")
     public void setTotalDue(int totalDue) {
         this.totalDue = totalDue;
     }
 
-    public String getActivatedAt(){
-        return  activatedAt;
+    @JsonProperty("activated_at")
+    public String getActivatedAt() {
+        return activatedAt;
     }
 
-    public void setActivatedAt(String activatedAt){
+    @JsonProperty("activated_at")
+    public void setActivatedAt(String activatedAt) {
         this.activatedAt = activatedAt;
     }
 
-    public String getCurrentTermStart(){
-        return  currentTermStart;
+    @JsonProperty("current_term_start")
+    public String getCurrentTermStart() {
+        return currentTermStart;
     }
 
-    public void setCurrentTermStart(String CurrentTermStart){
+    @JsonProperty("current_term_start")
+    public void setCurrentTermStart(String currentTermStart) {
         this.currentTermStart = currentTermStart;
     }
 
-    public String getCurrentTermEnd(){
-        return  currentTermEnd;
+    @JsonProperty("current_term_end")
+    public String getCurrentTermEnd() {
+        return currentTermEnd;
     }
 
-    public void setCurrentTermEnd(String CurrentTermEnd){
+    @JsonProperty("current_term_end")
+    public void setCurrentTermEnd(String currentTermEnd) {
         this.currentTermEnd = currentTermEnd;
     }
 
-    public String getStatus(){
+    @JsonProperty("status")
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(String status){
+    @JsonProperty("status")
+    public void setStatus(String status) {
         this.status = status;
     }
 
-    public JSONObject objectJSON() {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("id", id);
-        jsonObject.put("customer", customer);
-        jsonObject.put("billing_period", billingPeriod);
-        jsonObject.put("billing_period_unit", billingPeriodUnit);
-        jsonObject.put("total_due", totalDue);
-        jsonObject.put("activated_at",activatedAt);
-        jsonObject.put("current_term_start",currentTermStart);
-        jsonObject.put("current_term_end", currentTermEnd);
-        jsonObject.put("status", status);
-        return jsonObject;
+    public static List<Subscriptions> getSubscriptionsByCustomerIdAndStatus(int customerId, String status) {
+        List<Subscriptions> subscriptions = new ArrayList<>();
+        try (Connection conn = connectionDatabase.getConnection()) {
+            String sql = "SELECT * FROM subscriptions WHERE customer = ? AND status = ?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, customerId);
+            pstmt.setString(2, status);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                Subscriptions subs = new Subscriptions();
+                subs.setId(rs.getInt("id"));
+                subs.setCustomer(rs.getInt("customer"));
+                subs.setBillingPeriod(rs.getInt("billing_period"));
+                subs.setBillingPeriodUnit(rs.getString("billing_period_unit"));
+                subs.setTotalDue(rs.getInt("total_due"));
+                subs.setActivatedAt(rs.getString("activated_at"));
+                subs.setCurrentTermStart(rs.getString("current_term_start"));
+                subs.setCurrentTermEnd(rs.getString("current_term_end"));
+                subs.setStatus(rs.getString("status"));
+                subscriptions.add(subs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return subscriptions;
     }
 
-    public int subscriptionsParsing(String json) {
-        try {
-            JSONObject obj = new JSONObject(json);
-            id = obj.getInt("id");
-            customer = obj.getInt("customer");
-            billingPeriod = obj.getInt("billing_period");
-            billingPeriodUnit = obj.getString("billing_period_unit");
-            totalDue = obj.getInt("total_due");
-            activatedAt = obj.getString("activated_at");
-            currentTermStart = obj.getString("current_term_start");
-            currentTermEnd = obj.getString("current_term_end");
-            status = obj.getString("status");
-        } catch (Exception e) {
-            return 1;
-        }
-        return 0;
-    }
-    public void insertSubscriptions() {
-        try {
-            Connection conn = connectionDatabase.getConnection();
-            String sql = "INSERT INTO subscriptions (customer, billing_period, billing_period_unit, total_due, activated_at, current_term_start, current_term_end, status) VALUES (?,?,?,?,?,?,?,?)";
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, customer);
-            pstmt.setInt(2, billingPeriod);
-            pstmt.setString(3, billingPeriodUnit);
-            pstmt.setInt(4, totalDue);
-            pstmt.setString(5, activatedAt);
-            pstmt.setString(6, currentTermStart);
-            pstmt.setString(7, currentTermEnd);
-            pstmt.setString(8, status);
-            pstmt.executeUpdate();
+    public static List<Subscriptions> getAllSubscription(String sortBy, String sortType) {
+        List<Subscriptions> subscriptions = new ArrayList<>();
+        try (Connection conn = connectionDatabase.getConnection()) {
+            String sql = "SELECT * FROM subscriptions ORDER BY current_term_end DESC";
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                Subscriptions subs = new Subscriptions();
+                subs.setId(rs.getInt("id"));
+                subs.setCustomer(rs.getInt("customer"));
+                subs.setBillingPeriod(rs.getInt("billing_period"));
+                subs.setBillingPeriodUnit(rs.getString("billing_period_unit"));
+                subs.setTotalDue(rs.getInt("total_due"));
+                subs.setActivatedAt(rs.getString("activated_at"));
+                subs.setCurrentTermStart(rs.getString("current_term_start"));
+                subs.setCurrentTermEnd(rs.getString("current_term_end"));
+                subs.setStatus(rs.getString("status"));
+                subscriptions.add(subs);
+            }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
+        return subscriptions;
     }
 
-    public void updateSubscriptions(String idSubscriptions) {
-        try {
-            Connection conn = connectionDatabase.getConnection();
-            String sql = "UPDATE subscription SET customer = \"" + customer +
-                    "\" , last_name = \"" + billingPeriod +
-                    "\" , email = \"" + billingPeriodUnit +
-                    "\" , phone_number = \"" + totalDue +
-                    "\" , last_name = \"" +activatedAt +
-                    "\" , email = \"" + currentTermStart +
-                    "\" , phone_number = \"" + currentTermEnd +
-                    "\" , phone_number = \"" + status +
-                    "\" WHERE users = " + idSubscriptions;
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-    }
 }
