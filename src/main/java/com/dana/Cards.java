@@ -1,8 +1,12 @@
 package com.dana;
-import org.json.JSONObject;
+
+import com.dana.connectionDatabase;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+
 public class Cards {
     private int id;
     private int customer;
@@ -13,7 +17,6 @@ public class Cards {
     private String status;
     private int isPrimary;
 
-
     public int getId() {
         return id;
     }
@@ -22,125 +25,101 @@ public class Cards {
         this.id = id;
     }
 
+    @JsonProperty("customer")
     public int getCustomer() {
         return customer;
     }
 
-    public void setCustomer() {
+    @JsonProperty("customer")
+    public void setCustomer(int customer) {
         this.customer = customer;
     }
 
+    @JsonProperty("card_type")
     public String getCardType() {
         return cardType;
     }
 
-    public void setCardType() {
+    @JsonProperty("card_type")
+    public void setCardType(String cardType) {
         this.cardType = cardType;
     }
 
+    @JsonProperty("masked_number")
     public String getMaskedNumber() {
         return maskedNumber;
     }
 
-    public void setMaskedNumber() {
+    @JsonProperty("masked_number")
+    public void setMaskedNumber(String maskedNumber) {
         this.maskedNumber = maskedNumber;
     }
 
+    @JsonProperty("expiry_month")
     public int getExpiryMonth() {
         return expiryMonth;
     }
 
-    public void setExpiryMonth() {
+    @JsonProperty("expiry_month")
+    public void setExpiryMonth(int expiryMonth) {
         this.expiryMonth = expiryMonth;
     }
 
+    @JsonProperty("expiry_year")
     public int getExpiryYear() {
         return expiryYear;
     }
 
-    public void setExpiryYear() {
+    @JsonProperty("expiry_year")
+    public void setExpiryYear(int expiryYear) {
         this.expiryYear = expiryYear;
     }
 
+    @JsonProperty("status")
     public String getStatus() {
         return status;
     }
 
-    public void setStatus() {
+    @JsonProperty("status")
+    public void setStatus(String status) {
         this.status = status;
     }
 
+    @JsonProperty("is_primary")
     public int getIsPrimary() {
         return isPrimary;
     }
 
-    public void setIsPrimary() {
+    @JsonProperty("is_primary")
+    public void setIsPrimary(int isPrimary) {
         this.isPrimary = isPrimary;
     }
 
-    public JSONObject objectJSON() {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("id", id);
-        jsonObject.put("customer", customer);
-        jsonObject.put("card_type", cardType);
-        jsonObject.put("masked_number", maskedNumber);
-        jsonObject.put("expiry_month", expiryMonth);
-        jsonObject.put("expiry_year", expiryYear);
-        jsonObject.put("status", status);
-        jsonObject.put("is_primary", isPrimary);
-        return jsonObject;
-    }
+    public static boolean deleteNonPrimaryCard(int customerId, int cardId) {
+        String selectQuery = "SELECT is_primary FROM cards WHERE id = ? AND customer = ?";
+        String deleteQuery = "DELETE FROM cards WHERE id = ? AND customer = ?";
 
-    public int cardsParse(String json) {
-        try {
-            JSONObject obj = new JSONObject(json);
-            customer = obj.getInt("customer");
-            cardType = obj.getString("card_type");
-            maskedNumber = obj.getString("masked_number");
-            expiryMonth = obj.getInt("expiry_month");
-            expiryYear = obj.getInt("expiry_year");
-            status = obj.getString("status");
-            isPrimary = obj.getInt("is_primary");
-        } catch (Exception e) {
-            return 1;
-        }
-        return 0;
-    }
+        try (Connection conn = connectionDatabase.getConnection();
+             PreparedStatement selectStmt = conn.prepareStatement(selectQuery)) {
 
-    public void insertCards() {
-        try {
-            Connection conn = connectionDatabase.getConnection();
-            String sql = "INSERT INTO cards (customer, card_type, masked_number, expiry_month, expiry_year, status, is_primary) VALUES (?,?,?,?,?,?,?)";
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, customer);
-            pstmt.setString(2, cardType);
-            pstmt.setString(3, maskedNumber);
-            pstmt.setInt(4, expiryMonth);
-            pstmt.setInt(5, expiryYear);
-            pstmt.setString(6, status);
-            pstmt.setInt(7, isPrimary);
-            pstmt.executeUpdate();
+            selectStmt.setInt(1, cardId);
+            selectStmt.setInt(2, customerId);
+            ResultSet rs = selectStmt.executeQuery();
+
+            if (rs.next()) {
+                int isPrimary = rs.getInt("is_primary");
+                if (isPrimary == 0) {
+                    try (PreparedStatement deleteStmt = conn.prepareStatement(deleteQuery)) {
+                        deleteStmt.setInt(1, cardId);
+                        deleteStmt.setInt(2, customerId);
+                        int rowsAffected = deleteStmt.executeUpdate();
+                        return rowsAffected > 0;
+                    }
+                }
+            }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
+        return false;
     }
-
-    public void updateCards(String id) {
-        try {
-            Connection conn = connectionDatabase.getConnection();
-            String sql = "UPDATE cards SET customer = \"" + customer +
-                    "\" , card_type = \"" + cardType +
-                    "\" , masked_number = \"" + maskedNumber +
-                    "\" , expiry_month = \"" + expiryMonth +
-                    "\" , expiry_year = \"" + expiryYear +
-                    "\" , status = \"" + status +
-                    "\" , is_primary = \"" + isPrimary +
-                    "\" WHERE users = " + id;
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
 }
