@@ -22,19 +22,19 @@ subscriptionItem
 subscriptions
 ```
 
-![Table name not found](img/Validate-2.png "Table name not found")
+
 
 -   ID merupakan bilangan bulat dari 1 sampai batas kolom pada tabel tertentu.
 
-![Wrong ID format](img/Validate-3.png "Wrong ID format")
+
 
 -   Parameter pada URL harus sesuai dengan ketentuan, untuk lebih detailnya pada [GET](#get) bagian **`localhost:8070/{table}?{params}`**
 
-![Wrong ID format](img/Validate-4.png "Wrong ID format")
+
 
 -   Format _request body_ yang diterima pada _request method_ POST dan PUT hanyalah JSON atau _JavaScript Object Notation_
 
-![Wrong request body format](img/Validate-5.png "Wrong request body format")
+
 
 ## Penggunaan
 
@@ -49,21 +49,19 @@ Berikut adalah langkah-langkah untuk menjalankan program ini:
 Program ini menggunakan API _Key_ untuk otorisasi atau _authorization_. Berikut adalah API _Key_ yang digunakan untuk otorisasi:
 
 ```
-
+key : api-key
+value : dana_240024200571
 ```
 
-Mohon masukkan _key_ tersebut pada bagian _request header_ dengan ketentuan sebagai berikut:
+Jika menggunakan aplikasi Postman, mohon masukkan key dan value tersebut pada bagian authorization dengan ketentuan sebagai berikut:
 
-```
-
-```
-
-Atau pada aplikasi Postman, Anda dapat melakukan konfigurasi sebagai berikut:
-
-!
+![alt text](<img/Screenshot (450).png>)
 
 Berikut pesan yang dikirimkan jika pengguna tidak menggunakan _API Key_.
 
+![alt text](<img/Screenshot (445).png>)
+
+## Tes API Menggunakan Postman
 
 #### GET
 
@@ -172,11 +170,17 @@ Metode PUT digunakan untuk mengubah data pada server.
 PUT /customers/{id}
 ```
 Perintah PUT untuk mengubah data customer berdasarkan id
+![alt text](<img/Screenshot (446).png>)
+
+![alt text](<img/Screenshot (449).png>)
 
 ```
-PUT /items/{id}
+PUT /item/{id}
 ```
 Perintah PUT untuk mengubah data item berdasarkan id
+![alt text](<img/Screenshot (447).png>)
+
+![alt text](<img/Screenshot (448).png>)
 
 #### DELETE
 
@@ -198,4 +202,5 @@ Perintah DELETE untuk menghapus informasi kartu kredit pelanggan berdasarkan cus
 ![alt text](<img/Screenshot (443).png>)
 
 ![alt text](<img/Screenshot (444).png>)
+
 
