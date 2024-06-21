@@ -1,9 +1,9 @@
 package com.dana;
 
-import org.json.JSONObject;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Customer {
     private int id;
     private String email;
@@ -11,28 +11,14 @@ public class Customer {
     private String lastName;
     private String phoneNumber;
 
+    // Tambahkan getter dan setter
+
     public int getId() {
         return id;
     }
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
     }
 
     public String getEmail() {
@@ -43,64 +29,33 @@ public class Customer {
         this.email = email;
     }
 
+    @JsonProperty("first_name")
+    public String getFirstName() {
+        return firstName;
+    }
+
+    @JsonProperty("first_name")
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    @JsonProperty("last_name")
+    public String getLastName() {
+        return lastName;
+    }
+
+    @JsonProperty("last_name")
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    @JsonProperty("phone_number")
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
+    @JsonProperty("phone_number")
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
-
-    public JSONObject objectJSON() {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("user", id);
-        jsonObject.put("first_name", firstName);
-        jsonObject.put("last_name", lastName);
-        jsonObject.put("email", email);
-        jsonObject.put("phone_number", phoneNumber);
-        return jsonObject;
-    }
-
-    public int customerParse(String json) {
-        try {
-            JSONObject obj = new JSONObject(json);
-            firstName = obj.getString("first_name");
-            lastName = obj.getString("last_name");
-            email = obj.getString("email");
-            phoneNumber = obj.getString("phone_number");
-        } catch (Exception e) {
-            return 1;
-        }
-        return 0;
-    }
-    public void insertUser() {
-        try {
-            Connection conn = connectionDatabase.getConnection();
-            String sql = "INSERT INTO customer (first_name, last_name, email, phone_number) VALUES (?,?,?,?)";
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, firstName);
-            pstmt.setString(2, lastName);
-            pstmt.setString(3, email);
-            pstmt.setString(4, phoneNumber);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public void updateUser(String idUser) {
-        try {
-            Connection conn = connectionDatabase.getConnection();
-            String sql = "UPDATE customer SET first_name = \"" + firstName +
-                    "\" , last_name = \"" + lastName +
-                    "\" , email = \"" + email +
-                    "\" , phone_number = \"" + phoneNumber +
-                    "\" WHERE users = " + idUser;
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-    }
 }
-
