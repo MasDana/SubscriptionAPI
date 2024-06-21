@@ -133,7 +133,6 @@ public class ParsingTool {
         return null;
     }
 
-
     public static Map<String, String> parseQuery(String query) {
         Map<String, String> queryPairs = new HashMap<>();
         String[] pairs = query.split("&");
