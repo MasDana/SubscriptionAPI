@@ -11,9 +11,6 @@ Program **API Sistem Pembayaran Subscriptions** adalah program yang memungkinkan
 ## Batasan Program
 
 -   Hanya _request method_ GET, POST, PUT, dan DELETE yang dizinkan.
-
-![Request method not allowed](img/Validate-1.png "Request method not allowed")
-
 -   Tidak diperkenankan kesalahan dalam penulisan nama tabel, berikut daftar tabel dengan penulisan yang tepat:
 
 ```
@@ -63,67 +60,123 @@ Mohon masukkan _key_ tersebut pada bagian _request header_ dengan ketentuan seba
 
 Atau pada aplikasi Postman, Anda dapat melakukan konfigurasi sebagai berikut:
 
-![Postman API Key Configuration](img/Postman-API-Key-Configuration.png "Postman API Key Configuration")
+!
 
 Berikut pesan yang dikirimkan jika pengguna tidak menggunakan _API Key_.
-
-![Select users](img/Authorization.png "Select users")
-
 
 
 #### GET
 
 Metode GET digunakan untuk mendapatkan data dari server.
 
-• GET /customers => daftar semua pelanggan
-• GET /customers/{id} => informasi pelanggan dan alamatnya
-• GET /customers/{id}/cards => daftar kartu kredit/debit milik pelanggan
-• GET /customers/{id}/subscriptions => daftar semua subscriptions milik
-pelanggan
-• GET /customers/{id}/subscriptions?subscriptions_status={active, cancelled,
-non-renewing} => daftar semua subscriptions milik pelanggan yg berstatus
-aktif / cancelled / non-renewing
+```
+GET /customer 
+```
+Perintah GET untuk mendapatkan seluruh info dalam tabel **customer**
 
-• GET /subscriptions => daftar semua subscriptions
-• GET /subscriptions?sort_by=current_term_end&sort_type=desc => daftar
-semua subscriptions diurutkan berdasarkan current_term_end secara
-descending
-• GET /subscriptions/{id} =>
-• informasi subscription,
-• customer: id, first_name, last_name,
-• subscription_items: quantity, amount,
-• item: id, name, price, type
+![alt text](<img/Screenshot (418).png>)
+```
+GET /customer/{id} 
+```
+Perintah GET untuk mendapatkan seluruh info salah satu id dalam tabel **customer**
 
-• GET /items => daftar semua produk
-• GET /items?is_active=true => daftar semua produk yg memiliki status aktif
-• GET /items/{id} => informasi produk
+![alt text](<img/Screenshot (419).png>)
+```
+GET /customers/{id}/cards 
+```
+Perintah GET untuk mendapatkan seluruh info salah satu customer berdasarkan id dengan detail cards yang dimiliki
+
+![alt text](<img/Screenshot (422).png>)
+```
+GET /customers/{id}/subscriptions 
+```
+Perintah GET untuk mendapatkan seluruh info salah satu customer berdasarkan id dengan detail subscriptions yang dimiliki
+
+![alt text](<img/Screenshot (421).png>)
+
+```
+GET /customers/{id}/subscriptions?subscriptions_status={active, cancelled,
+non-renewing}
+```
+Perintah GET untuk mendapatkan seluruh info salah satu customer berdasarkan id dengan detail subscriptions yang dimiliki, difilter berdasarkan subscriptions_status (active, cancelled, non-renewing)
+
+![alt text](<img/Screenshot (424).png>)
+
+```
+GET /subscriptions
+```
+Perintah GET untuk mendapatkan seluruh info dalam tabel subscriptions
+![alt text](<img/Screenshot (426).png>)
+```
+GET /subscriptions?sort_by=current_term_end&sort_type=desc 
+```
+Perintah GET untuk mendapatkan seluruh info dalam tabel subscriptions dengan pengurutan berdasarkan current_term_end dan tipe pengurutan desc
+![alt text](<img/Screenshot (427).png>)
+```
+GET /subscriptions/{id} 
+```
+Perintah GET untuk mendapatkan info salah satu subscription berdasarkan id
+![alt text](<img/Screenshot (428).png>)
+
+![alt text](<img/Screenshot (429).png>)
+```
+GET /items 
+```
+Perintah GET untuk mendapatkan seluruh info dalam tabel items
+![alt text](<img/Screenshot (430).png>)
+```
+GET /items?is_active=true 
+```
+Perintah GET untuk mendapatkan seluruh info dalam tabel items yang memiliki is_active bernilai true
+![alt text](<img/Screenshot (431).png>)
+
+```
+GET /items/{id}
+```
+Perintah GET untuk mendapatkan info salah satu item berdasarkan id
+![alt text](<img/Screenshot (432).png>)
 
 #### POST
 
 Metode POST digunakan untuk mengirimkan data ke server.
 ```
-POST /customers => buat pelanggan baru
+POST /customers
 ```
+Perintah POST untuk membuat customer baru
+![alt text](<img/Screenshot (434).png>)
+
+![alt text](<img/Screenshot (435).png>)
 ```
-POST /subscriptions => buat subscription baru
+POST /subscriptions 
 ```
+Perintah POST untuk membuat subscription baru
+![alt text](<img/Screenshot (437).png>)
+
+![alt text](<img/Screenshot (438).png>)
+
+
 ```
-POST /items => buat item baru
+POST /items
 ```
+Perintah POST untuk membuat item baru
+![alt text](<img/Screenshot (439).png>)
+
+![alt text](<img/Screenshot (440).png>)
+
+
 
 #### PUT
 
 Metode PUT digunakan untuk mengubah data pada server.
-
-
-
 ```
 PUT /customers/{id}
 ```
+Perintah PUT untuk mengubah data customer berdasarkan id
 
 ```
 PUT /items/{id}
 ```
+Perintah PUT untuk mengubah data item berdasarkan id
 
 #### DELETE
 
@@ -132,9 +185,17 @@ Metode DELETE digunakan untuk menghapus data pada server.
 ```
 DELETE /items/{id}
 ```
-DELETE untuk mengubah status dalam tabel item yaitu status dalam kolom isActive menjadi **false**
+Perintah DELETE untuk mengubah status item dalam tabel menjadi tidak aktif (isActive=false) berdasarkan id
+![alt text](<img/Screenshot (441).png>)
+
+![alt text](<img/Screenshot (442).png>)
+
 
 ```
 DELETE /customers/{id}/cards/{id}
 ```
-DELETE untuk menghapus informasi kartu kredit pelanggan jika isPrimary bernilai false
+Perintah DELETE untuk menghapus informasi kartu kredit pelanggan berdasarkan customer id dan card id jika isPrimary bernilai false
+![alt text](<img/Screenshot (443).png>)
+
+![alt text](<img/Screenshot (444).png>)
+
