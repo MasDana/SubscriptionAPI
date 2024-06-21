@@ -150,7 +150,7 @@ public class Request {
                         } else if (requestPath.length == 3 && requestQuery == null) {
                             assert id != null;
                             response.handleGet(tableMaster, Integer.parseInt(id), tableDetail);
-                        } else if (requestPath.length == 3 && "subscriptions".equals(requestPath[1])) {
+                        } else if (requestPath.length == 3 && "subscriptions".equals(requestPath[2])) {
                                 try {
                                     int customerId = Integer.parseInt(requestPath[1]);
                                     if (requestQuery != null && requestQuery.contains("status=")) {
